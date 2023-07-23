@@ -37,19 +37,6 @@ install_requirements() {
   fi
 }
 
-# Function to activate the Python virtual environment and change directory in the parent shell
-activate_venv_and_cd() {
-  local project_dir=$1
-  local activate_script=".venv/bin/activate"
-  if [ -f "$activate_script" ]; then
-    # Change directory in the parent shell using a subshell (cd is executed in a subshell)
-    (cd "$project_dir" && exec bash)
-  else
-    print_color "31" "ERROR: Failed to activate virtual environment. Make sure the virtual environment is created."
-    exit 1
-  fi
-}
-
 # Use GUI to select the project directory
 project_dir=$(select_directory)
 
@@ -70,5 +57,5 @@ create_venv "$project_dir"
 # Install Python requirements using pip in the virtual environment
 install_requirements "$project_dir"
 
-# Activate the Python virtual environment and change directory in the parent shell
-activate_venv_and_cd "$project_dir"
+print_color "32" 'You can now use your venv with "source .venv/bin/activate"'
+print_color "32" 'Tu use "source" command you need to be in your projet directory'
