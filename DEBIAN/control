@@ -1,0 +1,9 @@
+Package: AppImageBuilderGUI
+Version: 1.0
+Section: utils
+Priority: optional
+Architecture: all
+Maintainer: Zerbaib <zerbaib@proton.me>
+Depends: bash, curl, xdg-open
+Description: Automation Script for
+  Create a venv

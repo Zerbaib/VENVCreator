@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# Function to print colored text
+print_color() {
+  local color_code=$1
+  shift
+  echo -e "\e[${color_code}m$@\e[0m"
+}
+
+# Function to display a directory dialog and return the selected directory
+select_directory() {
+  local dir_path
+  dir_path=$(zenity --file-selection --directory --title="Select Project Directory" 2>/dev/null)
+  echo "$dir_path"
+}
+
+# Function to create a Python virtual environment
+create_venv() {
+  local project_dir=$1
+  if command -v python3 &>/dev/null; then
+    python3 -m venv "$project_dir"/.venv
+  elif command -v python &>/dev/null; then
+    python -m venv "$project_dir"/.venv
+  else
+    print_color "31" "ERROR: Python is not installed."
+    exit 1
+  fi
+}
+
+# Function to install Python requirements using pip
+install_requirements() {
+  local project_dir=$1
+  if [ -f "$project_dir/requirements.txt" ]; then
+    "$project_dir"/.venv/bin/pip install -r "$project_dir/requirements.txt"
+  else
+    print_color "33" "WARN: requirements.txt not found in the project directory."
+  fi
+}
+
+# Function to activate the Python virtual environment and change directory in the parent shell
+activate_venv_and_cd() {
+  local project_dir=$1
+  local activate_script=".venv/bin/activate"
+  if [ -f "$activate_script" ]; then
+    # Change directory in the parent shell using a subshell (cd is executed in a subshell)
+    (cd "$project_dir" && exec bash)
+  else
+    print_color "31" "ERROR: Failed to activate virtual environment. Make sure the virtual environment is created."
+    exit 1
+  fi
+}
+
+# Use GUI to select the project directory
+project_dir=$(select_directory)
+
+if [ -z "$project_dir" ]; then
+  echo "No project directory selected."
+  exit 1
+fi
+
+# Check if the project directory exists
+if [ ! -d "$project_dir" ]; then
+  echo "The directory $project_dir does not exist."
+  exit 1
+fi
+
+# Create Python virtual environment
+create_venv "$project_dir"
+
+# Install Python requirements using pip in the virtual environment
+install_requirements "$project_dir"
+
+# Activate the Python virtual environment and change directory in the parent shell
+activate_venv_and_cd "$project_dir"
